@@ -110,7 +110,7 @@ try {
             SELECT
                 note,
                 dept_id,
-                audit_id
+                audit_id,
                 room_tag
             FROM audited_asset
             WHERE asset_tag = :tag
@@ -154,7 +154,7 @@ try {
                 asset_tag,
                 note,
                 dept_id,
-                audit_id
+                audit_id,
                 room_tag
             FROM audited_asset
             WHERE asset_tag = :tag

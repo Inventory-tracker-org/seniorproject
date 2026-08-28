@@ -39,6 +39,7 @@ try {
         string $type,
         string $tag,
         int $currentAuditId,
+        int $room_tag,
         ?int $previousAuditId = null
     ): ?array {
         global $dbh;
@@ -65,6 +66,7 @@ try {
             $stmt->execute([
                 ':tag' => $tag,
                 ':audit_id' => $currentAuditId,
+                ':room_tag' => $room_tag
             ]);
 
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -201,12 +203,13 @@ try {
                         $_POST['audit-type'],
                         (string)$row['asset_tag'],
                         (int)$audit_id,
+                        (int)$row['room_tag'] ?? '',
                         $prev_id
                     );
 
                     if ($tag_info) {
                         $_SESSION['data'][$index]['Tag Status'] = 'Found';
-                        $_SESSION['data'][$index]['Found Room Tag'] = '';
+                        $_SESSION['data'][$index]['Found Room Tag'] = $tag_info['room_tag'] ?? '';
                         $_SESSION['data'][$index]['Found Room Number'] = '';
                         $_SESSION['data'][$index]['Found Building Name'] = '';
                         $_SESSION['data'][$index]['Found Note'] =
@@ -305,12 +308,13 @@ try {
                                     $_POST['audit-type'],
                                     (string)$r_row,
                                     (int)$audit_id,
+                                    (int)$row['room_tag'] ?? '',
                                     $prev_id
                                 );
 
                                 if ($tag_info) {
                                     $_SESSION['data'][$index - $skipped]['Tag Status'] = 'Found';
-                                    $_SESSION['data'][$index - $skipped]['Found Room Tag'] = '';
+                                    $_SESSION['data'][$index - $skipped]['Found Room Tag'] = $tag_info['room_tag'] ?? '';
                                     $_SESSION['data'][$index - $skipped]['Found Room Number'] = '';
                                     $_SESSION['data'][$index - $skipped]['Found Building Name'] = '';
                                     $_SESSION['data'][$index - $skipped]['Found Note'] =
@@ -359,12 +363,13 @@ try {
                                     $_POST['audit-type'],
                                     (string)$r_row,
                                     (int)$audit_id,
+                                    (int)$row['room_tag'] ?? '',
                                     $prev_id
                                 );
 
                                 if ($tag_info) {
                                     $_SESSION['data'][$index - $skipped]['Tag Status'] = 'Found';
-                                    $_SESSION['data'][$index - $skipped]['Found Room Tag'] = '';
+                                    $_SESSION['data'][$index - $skipped]['Found Room Tag'] = $tag_info['room_tag'] ?? '';
                                     $_SESSION['data'][$index - $skipped]['Found Room Number'] = '';
                                     $_SESSION['data'][$index - $skipped]['Found Building Name'] = '';
                                     $_SESSION['data'][$index - $skipped]['Found Note'] =
