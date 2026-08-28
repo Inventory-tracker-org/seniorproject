@@ -34,9 +34,9 @@ try {
         if (!in_array($tag['Tag Status'], ['Found', 'Extra'])) {
             continue;
         }
-        $insert_q = "INSERT INTO audited_asset (dept_id, audit_id, asset_tag, note) VALUES (?, ?, ?, ?) ON CONFLICT (dept_id, audit_id, asset_tag) DO UPDATE SET note = EXCLUDED.note";
+        $insert_q = "INSERT INTO audited_asset (dept_id, audit_id, asset_tag, note, room_tag) VALUES (?, ?, ?, ?, ?) ON CONFLICT (dept_id, audit_id, asset_tag) DO UPDATE SET note = EXCLUDED.note";
         $stmt = $dbh->prepare($insert_q);
-        $stmt->execute([$dept,$audit_id, $tag['Tag Number'], $tag['Found Note']]);
+        $stmt->execute([$dept,$audit_id, $tag['Tag Number'], $tag['Found Note'], $tag['Room Tag']]);
     }
 
 
