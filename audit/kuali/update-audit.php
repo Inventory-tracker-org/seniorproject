@@ -102,7 +102,7 @@ try {
             $_SESSION['data'][$index]['Tag Status'] =
                 'Found';
 
-            $_SESSION['data'][$index]['Found Room Number'] =
+            $_SESSION['data'][$index]['Found Room Tag'] =
                 'CHCKD';
         }
 
@@ -145,7 +145,7 @@ try {
             $_SESSION['data'][$index]['Tag Status'] =
                 'Found';
 
-            $_SESSION['data'][$index]['Found Room Number'] =
+            $_SESSION['data'][$index]['Found Room Tag'] =
                 'CHCKD';
         }
 
