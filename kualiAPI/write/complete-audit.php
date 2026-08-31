@@ -178,7 +178,7 @@ if (!$submit_audit) {
     exit;
 }
 
-$on = false;
+$on = false; // FORM IS CURRENTLY DISABLED
 if ($on) {
     $subdomain = "csub";
     // SUBMITTER INFO
