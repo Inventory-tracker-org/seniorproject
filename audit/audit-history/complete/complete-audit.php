@@ -212,7 +212,7 @@ if (isset($_GET['dept_id'])) {
     $resp = curl_exec($curl);
 
     $decoded_data = json_decode($resp, true);
-    $action_id = $decoded_data['data']['initializeWorkflow']['actionId'];
+    $action_id = NULL; //$decoded_data['data']['initializeWorkflow']['actionId']; DISABLED FORM
     curl_close($curl);
 
     $curl = curl_init($url);
