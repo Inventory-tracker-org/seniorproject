@@ -212,75 +212,78 @@ if (isset($_GET['dept_id'])) {
     $resp = curl_exec($curl);
 
     $decoded_data = json_decode($resp, true);
-    $action_id = NULL; //$decoded_data['data']['initializeWorkflow']['actionId']; DISABLED FORM
+    $action_id = $decoded_data['data']['initializeWorkflow']['actionId'];
     curl_close($curl);
+    $on = false; //DISABLED FORM
+    if (!$on) {
 
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $get_draft_id = json_encode([
-        'query' => 'query ($actionId: String!) { action(actionId: $actionId) { id appId document { id } } }',
-        'variables' => [
-            'actionId' => $action_id
-        ]
-    ]);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $get_draft_id);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    $resp = curl_exec($curl);
-    var_dump($resp);
-    $decoded_data = json_decode($resp, true);
-    $document_id = $decoded_data['data']['action']['document']['id'];
-    $action_id = $decoded_data['data']['action']['id'];
+        $get_draft_id = json_encode([
+            'query' => 'query ($actionId: String!) { action(actionId: $actionId) { id appId document { id } } }',
+            'variables' => [
+                'actionId' => $action_id
+            ]
+        ]);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $get_draft_id);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        $resp = curl_exec($curl);
+        var_dump($resp);
+        $decoded_data = json_decode($resp, true);
+        $document_id = $decoded_data['data']['action']['document']['id'];
+        $action_id = $decoded_data['data']['action']['id'];
 
-    curl_close($curl);
+        curl_close($curl);
 
 
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    if (!$action_id || !$document_id) {
-        die("Missing required data.\nactionId: $action_id\ndocumentId: $document_id");
-    }
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        if (!$action_id || !$document_id) {
+            die("Missing required data.\nactionId: $action_id\ndocumentId: $document_id");
+        }
 
-    if (!$action_id) {
-        die("ERROR: actionId is NULL before submitting the document.");
-    }
-    $now_array = new DateTime();
-    $now_array->setTimezone(new DateTimeZone('America/Los_Angeles'));
-    $now = $now_array->format('Y-m-d\TH:i:s.v\Z');
+        if (!$action_id) {
+            die("ERROR: actionId is NULL before submitting the document.");
+        }
+        $now_array = new DateTime();
+        $now_array->setTimezone(new DateTimeZone('America/Los_Angeles'));
+        $now = $now_array->format('Y-m-d\TH:i:s.v\Z');
 
-    $ms_time = round(microtime(true) * 1000);
-    $variables['documentId'] = $document_id;
-    $variables['actionId'] = $action_id;
-    $variables['status'] = 'completed';
-    $submit_form = json_encode([
-        'query' => 'mutation ($documentId: ID!, $data: JSON, $actionId: ID!, $status: String)
+        $ms_time = round(microtime(true) * 1000);
+        $variables['documentId'] = $document_id;
+        $variables['actionId'] = $action_id;
+        $variables['status'] = 'completed';
+        $submit_form = json_encode([
+            'query' => 'mutation ($documentId: ID!, $data: JSON, $actionId: ID!, $status: String)
     { submitDocument( id: $documentId data: $data actionId: $actionId status: $status )}',
-        'variables' => $variables
-    ]);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $submit_form);
+            'variables' => $variables
+        ]);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $submit_form);
 
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
-    $resp = curl_exec($curl);
-    $resp_data = json_decode($resp, true);
+        $resp = curl_exec($curl);
+        $resp_data = json_decode($resp, true);
 
-    curl_close($curl);
-    echo json_encode([
-        $document_id,
-        $action_id,
-        $form_id,
-        $resp_data
-    ]);
-    ob_get_clean();
-    exit;
+        curl_close($curl);
+        echo json_encode([
+            $document_id,
+            $action_id,
+            $form_id,
+            $resp_data
+        ]);
+        ob_get_clean();
+        exit;
+    }
 }
 header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/search-history.php?type=failure&reason=GET_NOT_SET");
 exit;
