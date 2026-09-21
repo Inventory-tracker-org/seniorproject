@@ -58,10 +58,6 @@ try {
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    /*
-     * Use the same response whether the email or password is wrong.
-     * This avoids revealing which email addresses exist.
-     */
     if (!$user || !password_verify($pw, $user["pw"])) {
         sendJson(401, [
             "success" => false,
@@ -82,12 +78,8 @@ try {
         ]);
     }
 
-    /*
-     * Generate a 64-character raw token.
-     *
-     * The raw token is returned to the app.
-     * The SHA-256 hash is stored in the database.
-     */
+    //64-bit token generation
+
     $rawToken = bin2hex(random_bytes(32));
     $tokenHash = hash("sha256", $rawToken);
 
