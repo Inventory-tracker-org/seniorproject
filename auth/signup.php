@@ -40,10 +40,10 @@ try {
                     if ($user_check['email'] === $email) {
                         $user_err = "Username or Email already exists";
                         $err = 1;
-                    } 
-                } 
+                    }
+                }
             }
-        } 
+        }
 
         if (!empty($con_password)) {
             if ($con_password === $password) {
