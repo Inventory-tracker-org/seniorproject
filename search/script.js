@@ -24,6 +24,7 @@ function searchTrigger() {
     var bldg_id = $('#bldg_id').prop('checked');
     var bldg_name = $('#bldg_name').prop('checked');
     var bldg_id_search = $('#bldg-id-search').val();
+    var notes = $('#notes').prop('checked');
 
     //Validating, if "name" is empty.
     if (name == "") {
@@ -57,6 +58,7 @@ function searchTrigger() {
                 bldg_id: bldg_id,
                 bldg_name: bldg_name,
                 bldg_id_search: bldg_id_search,
+                notes: notes,
 
                 //Assigning value of "name" into "search" variable.
                 search: search
@@ -105,7 +107,7 @@ function auditTrigger() {
             bldg_id: bldg_id,
             bldg_name: bldg_name,
             audit: audit,
-            bldg_id_search, bldg_id_search,
+            bldg_id_search: bldg_id_search,
             search: search
         },
         dataType: 'json',  
@@ -135,6 +137,7 @@ function searchTriggerViaAjax(
     var bldg_id = $('#bldg_id').prop('checked');
     var bldg_name = $('#bldg_name').prop('checked');
     var bldg_id_search = $('#bldg-id-search').val();
+    var notes = $('#notes').prop('checked');
     $.ajax({
         //AJAX type is "Post".
         type: "POST",
@@ -158,6 +161,7 @@ function searchTriggerViaAjax(
             bldg_id: bldg_id,
             bldg_name: bldg_name,
             bldg_id_search: bldg_id_search,
+            notes: notes,
 
             //Assigning value of "name" into "search" variable.
             search: search
@@ -247,9 +251,9 @@ $(document).ready(function() {
     keepCheckboxValues('asset_sn', '#asset_sn');
     keepCheckboxValues('asset_price', '#asset_price');
     keepCheckboxValues('asset_po', '#asset_po');
-
     keepCheckboxValues('bldg_id', '#bldg_id');
     keepCheckboxValues('bldg_name', '#bldg_name');
+    keepCheckboxValues('notes', '#notes');
 
 
     /*
