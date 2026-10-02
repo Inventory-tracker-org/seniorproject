@@ -1,5 +1,5 @@
-<?php 
-include_once "../../config.php";
+<?php
+require_once "../../config.php";
 
 if (isset($_GET['profile_name'])) {
     $profile = trim($_GET['profile_name'], "'");
@@ -14,7 +14,7 @@ if (isset($_GET['profile_name'])) {
         LEFT JOIN department d ON a.dept_id = d.dept_id
         WHERE p.profile_name = :profile_name AND p.email = :email ORDER BY p.asset_tag";
     $select_stmt = $dbh->prepare($select_q);
-    $select_stmt->execute([":profile_name"=>$profile,":email"=>$email]);
+    $select_stmt->execute([":profile_name" => $profile, ":email" => $email]);
     $result = $select_stmt->fetchAll(PDO::FETCH_ASSOC);
     unset($_SESSION['data']);
     unset($_SESSION['info']);
@@ -29,7 +29,7 @@ if (isset($_GET['profile_name'])) {
             $_SESSION['data'][$index]['Tag Number'] = $row['asset_tag'];
             $_SESSION['data'][$index]['Descr'] = $row['asset_name'];
             $_SESSION['data'][$index]['Serial ID'] = $row['serial_num'];
-            $_SESSION['data'][$index]['Location'] = $row['bldg_id']. '-'.$row['room_loc'];
+            $_SESSION['data'][$index]['Location'] = $row['bldg_id'] . '-' . $row['room_loc'];
             $_SESSION['data'][$index]['VIN'] = '';
             $_SESSION['data'][$index]['Custodian'] = $row['custodian'] ?? '';
             $_SESSION['data'][$index]['Dept'] = $row['dept_id'];
@@ -52,6 +52,7 @@ if (isset($_GET['profile_name'])) {
         }
     }
     $_SESSION['info'] = [$highest_row, NULL, $profile, 'cust', $profile];
-    header("Location: https://dataworks-7b7x.onrender.com/audit/auditing.php");
+    //header("Location: https://dataworks-7b7x.onrender.com/audit/auditing.php");
+    header("Location: " . url('/audit/auditing.php'));
     exit;
 }

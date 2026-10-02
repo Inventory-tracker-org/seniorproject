@@ -80,7 +80,7 @@ if (isset($_POST['add'])) {
             $insert_q = "INSERT INTO asset_info ($column) VALUES ($question_marks)";
             $insert_stmt = $dbh->prepare($insert_q);
             $insert_stmt->execute($params);
-       }
+        }
     } catch (PDOException $e) {
         error_log($e->getMessage());
         exit;
@@ -88,6 +88,6 @@ if (isset($_POST['add'])) {
 } else {
     exit;
 }
-header('location: https://dataworks-7b7x.onrender.com/add/add-asset.php');
+//header('location: https://dataworks-7b7x.onrender.com/add/add-asset.php');
+header('Location: ' . url('/add/add-asset.php'));
 exit;
-
