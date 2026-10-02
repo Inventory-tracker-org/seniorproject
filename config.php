@@ -8,6 +8,13 @@ $db_pass = $_ENV['DB_PASS'] ?? NULL;
 $sburl = $_ENV['SB_URL'] ?? NULL;
 $sbsecret = $_ENV['SB_SECRET_KEY'] ?? NULL;
 
+define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost:3000');
+
+function url(string $path = ''): string
+{
+    return APP_URL . '/' . ltrim($path, '/');
+}
+
 try {
     if (session_status() === PHP_SESSION_NONE) {
         ini_set('session.gc_maxlifetime', 43200);
@@ -47,12 +54,14 @@ function check_auth($level = 'low')
         'high' => ['admin']
     ];
     if (!isset($_SESSION['role']) || $_SESSION['role'] === '') {
-        header('Location: https://dataworks-7b7x.onrender.com/auth/login.php');
+        header('Location:' . url('auth/login.php'));
+        //header('Location: https://dataworks-7b7x.onrender.com/auth/login.php');
         exit;
     }
     $user_role = $_SESSION['role'];
     if (!in_array($user_role, $levels[$level] ?? [])) {
-        header('Location: https://dataworks-7b7x.onrender.com/index.php');
+        header('Location: ' . url('index.php'));
+        //header('Location: https://dataworks-7b7x.onrender.com/index.php');
         exit;
     }
     return true;
