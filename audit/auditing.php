@@ -1,12 +1,14 @@
 <?php
-include_once("../config.php");
+require_once("../config.php");
 check_auth();
 if (!isset($_SESSION['data'])) {
-    header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php");
+    //header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php");
+    header("Location: " . url('/audit/upload.php'));
     exit;
 }
 if (empty($_SESSION['info']) && empty($_SESSION['data'])) {
-    header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php?msg=NoRecentAudit");
+    //header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php?msg=NoRecentAudit");
+    header("Location: " . url('/audit/upload.php?msg=NoRecentAudit'));
     exit;
 }
 
@@ -31,7 +33,8 @@ try {
         }
     }
     if ($key_found === false) {
-        header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php?error=key_fail");
+        //header("Location: https://dataworks-7b7x.onrender.com/audit/upload.php?error=key_fail");
+        header("Location: " . url('/audit/upload.php?error=key_fail'));
         exit;
     }
     $keys = array_keys($_SESSION['data'][$key_index]);
@@ -547,8 +550,10 @@ try {
 
 
         var botmanWidget = {
-            frameEndpoint: 'https://dataworks-7b7x.onrender.com/chat/botman-widget.html',
-            chatServer: 'https://dataworks-7b7x.onrender.com/chat/chatbot.php',
+            frameEndpoint: "<?= url('/chat/botman-widget.html') ?>",
+            //frameEndpoint: 'https://dataworks-7b7x.onrender.com/chat/botman-widget.html',
+            chatServer: "<?= url('/chat/chatbot.php') ?>",
+            //chatServer: 'https://dataworks-7b7x.onrender.com/chat/chatbot.php',
             introMessage: "👋 Hello! I'm Chatbot. Ask me anything!",
             title: "Chatbot",
             mainColor: "#ADD8E6",
@@ -562,7 +567,8 @@ try {
         document.addEventListener("DOMContentLoaded", () => {
             const update_btn = document.getElementById('kuali');
             update_btn.addEventListener('click', async () => {
-                url2 = 'https://dataworks-7b7x.onrender.com/audit/kuali/update-audit.php';
+                url2 = "<?= url('/audit/kuali/update-audit.php') ?>";,
+                //url2 = 'https://dataworks-7b7x.onrender.com/audit/kuali/update-audit.php';
                 const kuali_res = await fetch(url2, {
                     method: 'POST',
                     headers: {
@@ -575,7 +581,8 @@ try {
                     if (json.status === 'Ok') {
                         toast("Updated audit");
                         setTimeout(() => {
-                            window.location.href = 'https://dataworks-7b7x.onrender.com/audit/auditing.php';
+                            window.location.href = '<?= url('/audit/auditing.php') ?>';
+                            //window.location.href = 'https://dataworks-7b7x.onrender.com/audit/auditing.php';
                         }, 500);
                     }
                 }
@@ -585,7 +592,8 @@ try {
             complete_audit_btn.addEventListener("click", async () => {
                 let audited_with = prompt("Did anyone help with the audit?");
                 audited_with = audited_with.trim();
-                url = "https://dataworks-7b7x.onrender.com/audit/complete/complete_api.php";
+                url = "<?= url('/audit/complete/complete_api.php') ?>";
+                //url = "https://dataworks-7b7x.onrender.com/audit/complete/complete_api.php";
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -607,7 +615,8 @@ try {
                 tag = (room_tag.value || "").trim();
                 if (!tag) return;
 
-                url = "https://dataworks-7b7x.onrender.com/audit/get-bldg-info.php";
+                url = "<?= url('/audit/get-bldg-info.php') ?>";
+                //url = "https://dataworks-7b7x.onrender.com/audit/get-bldg-info.php";
                 const res2 = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -641,7 +650,8 @@ try {
             const params = new URLSearchParams({
                 tag: tag
             });
-            url = "https://dataworks-7b7x.onrender.com/audit/delete-asset.php";
+            //url = "https://dataworks-7b7x.onrender.com/audit/delete-asset.php";
+            url = "<?= url('/audit/delete-asset.php') ?>";
             const response = confirm("Are you sure you want to delete this asset");
             if (response) {
                 fetch(url, {
@@ -656,7 +666,8 @@ try {
                     .catch(error => console.error('Error ', error));
                 //location.reload();
                 setTimeout(() => {
-                    window.location.href = 'https://dataworks-7b7x.onrender.com/audit/auditing.php';
+                    window.location.href = '<?= url('/audit/auditing.php') ?>';
+                    //window.location.href = 'https://dataworks-7b7x.onrender.com/audit/auditing.php';
                 }, 500);
             } else {
                 console.log("User declined");
@@ -668,7 +679,8 @@ try {
                     tag: e.target.id,
                     room: e.target.value
                 });
-                url = "https://dataworks-7b7x.onrender.com/audit/save-data.php";
+                url = "<?= url('/audit/save-data.php') ?>";
+                //url = "https://dataworks-7b7x.onrender.com/audit/save-data.php";
                 fetch(url, {
                         method: 'POST',
                         body: params,
@@ -685,7 +697,8 @@ try {
                     tag: e.target.id,
                     note: e.target.value
                 });
-                url = "https://dataworks-7b7x.onrender.com/audit/save-data.php";
+                url = "<?= url('/audit/save-data.php') ?>";
+                //url = "https://dataworks-7b7x.onrender.com/audit/save-data.php";
                 fetch(url, {
                         method: 'POST',
                         body: params,
@@ -978,7 +991,8 @@ try {
         });
         document.getElementById('tag-btn').addEventListener('click', async function(e) {
             const room_tag = document.getElementById("room-tag");
-            url = "https://dataworks-7b7x.onrender.com/audit/get-room-tag.php";
+            url = "<?= url('/audit/get-room-tag.php') ?>";
+            //url = "https://dataworks-7b7x.onrender.com/audit/get-room-tag.php";
             const room_res = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -1039,7 +1053,8 @@ try {
 
         async function findRoomTag(bldg, room_num) {
             //console.log ('start of function')
-            url = "https://dataworks-7b7x.onrender.com/audit/find-room-tag.php";
+            url = "<?= url('/audit/find-room-tag.php') ?>";
+            //url = "https://dataworks-7b7x.onrender.com/audit/find-room-tag.php";
             const tag_res = await fetch(url, {
                 method: 'POST',
                 headers: {

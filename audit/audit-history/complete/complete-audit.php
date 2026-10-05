@@ -1,5 +1,5 @@
 <?php
-include_once "../../../config.php";
+require_once "../../../config.php";
 include_once "../../../kualiAPI/write/search.php";
 include_once "../../../kualiAPI/dataworks-read/dw-check-forms.php";
 $variables = [[]];
@@ -282,5 +282,6 @@ if (isset($_GET['dept_id'])) {
     ob_get_clean();
     exit;
 }
-header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/search-history.php?type=failure&reason=GET_NOT_SET");
+//header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/search-history.php?type=failure&reason=GET_NOT_SET");
+header("Location: " . url('/audit/audit-history/search-history.php?type=failure&reason=GET_NOT_SET'));
 exit;

@@ -68,7 +68,8 @@ if ($number_pc > 1) {
 
     $_SESSION['info'] = [$index, 1, $dept_id, $audit_type, $dept_id, $audit_id, $data['forms_submitted'], $custodians];
 
-    header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-pc.php");
+    //header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-pc.php");
+    header("Location: " . url('/audit/audit-history/complete/select-pc.php'));
     exit;
 } else if ($number_pc === 1) {
     $_SESSION['selected_custodian_index'] = 1;
@@ -76,7 +77,8 @@ if ($number_pc > 1) {
 
     $_SESSION['info'] = [$index, 1, $dept_id, $audit_type, $dept_id, $audit_id, $data['forms_submitted'], $custodians];
 
-    header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-forms.php");
+    //header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-forms.php");
+    header("Location: " . url('/audit/audit-history/complete/select-forms.php'));
     exit;
 } else if ($number_pc <= 0) {
     echo '<br> Error no custodian labeled for ' . $dept_id;

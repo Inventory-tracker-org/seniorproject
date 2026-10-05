@@ -1,5 +1,5 @@
 <?php
-include_once "../../../config.php";
+require_once "../../../config.php";
 check_auth();
 
 $custodians = $_SESSION['info'][7];
@@ -11,7 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['selected_custodian_index'] = $selectedIndex + 1;
         $_SESSION['selected_custodian'] = $custodians[$selectedIndex];
 
-        header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-forms.php");
+        //header("Location: https://dataworks-7b7x.onrender.com/audit/audit-history/complete/select-forms.php");
+        header("Location: " . url('/audit/audit-history/complete/select-forms.php'));
         exit;
     }
 }
@@ -27,7 +28,8 @@ include_once("../navbar.php");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Property Custodian</title>
 
-    <link rel="icon" href="https://dataworks-7b7x.onrender.com/pictures/home/favicon-32x32.png" sizes="32x32" type="image/x-icon">
+    <!-- <link rel="icon" href="https://dataworks-7b7x.onrender.com/pictures/home/favicon-32x32.png" sizes="32x32" type="image/x-icon"> -->
+    <link rel="icon" href="<?php url('/pictures/home/favicon-32x32.png'); ?>" sizes="32x32" type="image/x-icon">
     <link rel="stylesheet" href="/navbar.css">
 
     <style>
