@@ -65,6 +65,26 @@ try {
             continue;
         }
 
+        $checkDisposed = "
+            SELECT
+                asset_status
+            FROM asset_info
+            WHERE asset_tag = :tag
+            LIMIT 1
+        ";
+
+        $stmt = $dbh->prepare($checkDisposed);
+        $stmt->execute([':tag' => $tag]);
+        $disposed = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (
+            $disposed['asset_status'] === 'Disposed'
+        ) {
+            // If the asset is disposed, delete from audit
+            unset($_SESSION['data'][$index]);
+            continue;
+        }
+
         //Check-outs are GLOBAL.
 
         $checkoutSql = "
