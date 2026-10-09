@@ -149,8 +149,19 @@ require_once __DIR__ . '/config.php';
               <li><a href="http://localhost:3000/package-tracking/package-view.php">Package Tracking</a></li>
 -->
               <li><a href="<?= url('/search/search.php') ?>">Search</a></li>
-              <li><a href="<?= url('/package-tracking/package-view.php') ?>">Package Tracking</a></li>
               <?php if ($_SESSION['role'] === 'admin') { ?>
+                <li>
+                  <span class="dropdown">
+                    <a class="dropbtn">Tracking Services<svg width="13" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </a>
+                    <span class="dropdown-content">
+                      <a href="<?= url('/package-tracking/package-view.php') ?>">Tracking Reports</a>
+                      <a href="<?= url('/package-tracking/package-view.php') ?>">Package Tracking</a>
+                      <a href="<?= url('/package-tracking/package-view.php') ?>">Freight Tracking</a>
+                    </span>
+                </li>
                 <li>
                   <span class="dropdown">
                     <a class="dropbtn">Add/Remove<svg width="13" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
