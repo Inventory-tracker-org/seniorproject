@@ -75,7 +75,7 @@ function uploadToSupabase(
 
     curl_setopt_array($ch, [
         CURLOPT_URL =>
-            $supabaseUrl .
+        $supabaseUrl .
             '/storage/v1/object/' .
             rawurlencode($bucket) .
             '/' .
@@ -132,7 +132,7 @@ function deleteSupabaseObject(string $bucket, ?string $objectPath): void
 
     curl_setopt_array($ch, [
         CURLOPT_URL =>
-            $supabaseUrl .
+        $supabaseUrl .
             '/storage/v1/object/' .
             rawurlencode($bucket) .
             '/' .
@@ -155,15 +155,15 @@ function deleteSupabaseObject(string $bucket, ?string $objectPath): void
     if ($response === false || $status < 200 || $status >= 300) {
         error_log(
             'Supabase cleanup failed for ' .
-            $bucket .
-            '/' .
-            $objectPath .
-            '. HTTP ' .
-            $status .
-            '. cURL: ' .
-            $curlError .
-            '. Response: ' .
-            (string) $response
+                $bucket .
+                '/' .
+                $objectPath .
+                '. HTTP ' .
+                $status .
+                '. cURL: ' .
+                $curlError .
+                '. Response: ' .
+                (string) $response
         );
     }
 }
@@ -187,8 +187,8 @@ try {
         ? 'Development User'
         : trim(
             (string) $currentUser['f_name'] .
-            ' ' .
-            (string) $currentUser['l_name']
+                ' ' .
+                (string) $currentUser['l_name']
         );
 
     $date = trim((string) ($_POST['date'] ?? ''));
@@ -491,7 +491,7 @@ try {
             'delivered_by' => $deliveredBy,
             'delivered_to' => $deliveredTo,
             'comments' => $comments,
-            'delivered_status' => true,
+            'delivered_status' => 'delivered',
             'signature_path' => $sigURL,
             'photo_path' => $photoURL,
             'latitude' => $latitude,

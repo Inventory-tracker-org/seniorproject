@@ -336,8 +336,8 @@ $paginationEnd = min(
 
 $startingRow =
     $totalRows === 0
-        ? 0
-        : $offset + 1;
+    ? 0
+    : $offset + 1;
 
 $endingRow = min(
     $offset + $perPage,
@@ -1240,11 +1240,20 @@ include('../navbar.php');
                         <?php else: ?>
                             <?php foreach ($packages as $package): ?>
                                 <?php
+                                if ($package['delivered_status'] === 'delivered') {
+                                    $isDelivered = 'delivered';
+                                } elseif ($package['delivered_status'] === 'received') {
+                                    $isDelivered = 'received';
+                                } else {
+                                    $isDelivered = 'pending';
+                                }
+                                /*
                                 $isDelivered =
-                                    $package['delivered_status'] === true ||
+                                    $package['delivered_status'] === 'delivered' /* ||
                                     $package['delivered_status'] === 't' ||
                                     $package['delivered_status'] === '1' ||
                                     $package['delivered_status'] === 1;
+                                    */
                                 ?>
 
                                 <tr
@@ -1323,9 +1332,13 @@ include('../navbar.php');
                                     </td>
 
                                     <td>
-                                        <?php if ($isDelivered): ?>
+                                        <?php if ($isDelivered === 'delivered'): ?>
                                             <span class="status status-delivered">
                                                 Delivered
+                                            </span>
+                                        <?php elseif ($isDelivered === 'received'): ?>
+                                            <span class="status status-received">
+                                                Received
                                             </span>
                                         <?php else: ?>
                                             <span class="status status-pending">
