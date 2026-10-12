@@ -34,12 +34,14 @@ function displayValue(mixed $value): string
 function buildPageUrl(
     int $page,
     int $perPage,
-    string $search
+    string $search,
+    string $packageType
 ): string {
     return '?' . http_build_query([
         'page' => $page,
         'per_page' => $perPage,
-        'search' => $search
+        'search' => $search,
+        'filter_packages' => $packageType
     ]);
 }
 
@@ -105,6 +107,23 @@ $whereParts = [
 
 $params = [];
 
+$packageType = (string)($_GET['filter_packages'] ?? 'All');
+
+$allowedPackageTypes = [
+    'All',
+    'package',
+    'freight'
+];
+
+if (!in_array($packageType, $allowedPackageTypes, true)) {
+    $packageType = 'All';
+}
+
+if ($packageType !== 'All') {
+    $whereParts[] = 'package_type = :package_type';
+    $params['package_type'] = $packageType;
+}
+
 if ($search !== '') {
     $whereParts[] = "
         (
@@ -158,10 +177,19 @@ if ($search === '') {
     ";
 }
 
+
 $countStatement =
     $dbh->prepare(
         $countSql
     );
+
+if ($packageType !== 'All') {
+    $countStatement->bindValue(
+        ':package_type',
+        $params['package_type'],
+        PDO::PARAM_STR
+    );
+}
 
 if ($search !== '') {
     $countStatement->bindValue(
@@ -290,6 +318,14 @@ $googleMapsApiKey = trim(
         'GOOGLE_MAPS_API_KEY'
     )
 );
+
+if ($packageType !== 'All') {
+    $packageStatement->bindValue(
+        ':package_type',
+        $params['package_type'],
+        PDO::PARAM_STR
+    );
+}
 
 if ($search !== '') {
     $packageStatement->bindValue(
@@ -1047,6 +1083,47 @@ include('../navbar.php');
             background: #eef1f3;
         }
 
+        .header-controls {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .filter-by-type {
+            margin: 0;
+            padding: 8px;
+
+            border: 1px solid #d6dadd;
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.09);
+        }
+
+        .filter-by-type select {
+            width: 170px;
+            height: 34px;
+
+            padding: 0 32px 0 11px;
+
+            border: 1px solid #cfd4d8;
+            border-radius: 4px;
+
+            color: #444444;
+            background: #ffffff;
+
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .filter-by-type select:focus {
+            border-color: #1683ff;
+            box-shadow: 0 0 0 2px rgba(22, 131, 255, 0.12);
+        }
+
         .map-loading,
         .map-error,
         .map-unavailable {
@@ -1163,36 +1240,81 @@ include('../navbar.php');
         <header class="page-header">
             <h1 class="page-title">Package List</h1>
 
-            <form method="get" class="search-form">
-                <input
-                    type="search"
-                    name="search"
-                    class="search-input"
-                    value="<?= escapeHtml($search) ?>"
-                    placeholder="Search packages"
-                    aria-label="Search packages">
+            <div class="header-controls">
 
-                <input
-                    type="hidden"
-                    name="per_page"
-                    value="<?= $perPage ?>">
+                <form method="get" class="filter-by-type">
+                    <input
+                        type="hidden"
+                        name="search"
+                        value="<?= escapeHtml($search) ?>">
 
-                <input type="hidden" name="page" value="1">
+                    <input
+                        type="hidden"
+                        name="per_page"
+                        value="<?= $perPage ?>">
 
-                <button type="submit" class="search-button">
-                    Search
-                </button>
+                    <input
+                        type="hidden"
+                        name="page"
+                        value="1">
 
-                <?php if ($search !== ''): ?>
-                    <a
-                        class="clear-search"
-                        href="<?= escapeHtml(
-                                    buildPageUrl(1, $perPage, '')
-                                ) ?>">
-                        Clear
-                    </a>
-                <?php endif; ?>
-            </form>
+                    <select
+                        id="filter_packages"
+                        name="filter_packages"
+                        onchange="this.form.submit()">
+
+                        <option
+                            value="All"
+                            <?= $packageType === 'All' ? 'selected' : '' ?>>
+                            All
+                        </option>
+
+                        <option
+                            value="package"
+                            <?= $packageType === 'package' ? 'selected' : '' ?>>
+                            Standard
+                        </option>
+
+                        <option
+                            value="freight"
+                            <?= $packageType === 'freight' ? 'selected' : '' ?>>
+                            Freight
+                        </option>
+
+                    </select>
+                </form>
+
+
+                <form method="get" class="search-form">
+                    <input
+                        type="search"
+                        name="search"
+                        class="search-input"
+                        value="<?= escapeHtml($search) ?>"
+                        placeholder="Search packages"
+                        aria-label="Search packages">
+
+                    <input
+                        type="hidden"
+                        name="per_page"
+                        value="<?= $perPage ?>">
+
+                    <input type="hidden" name="page" value="1">
+
+                    <button type="submit" class="search-button">
+                        Search
+                    </button>
+
+                    <?php if ($search !== ''): ?>
+                        <a
+                            class="clear-search"
+                            href="<?= escapeHtml(
+                                        buildPageUrl(1, $perPage, '', $packageType)
+                                    ) ?>">
+                            Clear
+                        </a>
+                    <?php endif; ?>
+                </form>
         </header>
 
         <section class="table-card">
@@ -1386,7 +1508,8 @@ include('../navbar.php');
                                             buildPageUrl(
                                                 $page - 1,
                                                 $perPage,
-                                                $search
+                                                $search,
+                                                $packageType
                                             )
                                         ) ?>"
                                 aria-label="Previous page">
@@ -1407,7 +1530,8 @@ include('../navbar.php');
                                             buildPageUrl(
                                                 1,
                                                 $perPage,
-                                                $search
+                                                $search,
+                                                $packageType
                                             )
                                         ) ?>">
                                 1
@@ -1438,7 +1562,8 @@ include('../navbar.php');
                                             buildPageUrl(
                                                 $pageNumber,
                                                 $perPage,
-                                                $search
+                                                $search,
+                                                $packageType
                                             )
                                         ) ?>"
                                 <?= $pageNumber === $page
@@ -1463,7 +1588,8 @@ include('../navbar.php');
                                             buildPageUrl(
                                                 $totalPages,
                                                 $perPage,
-                                                $search
+                                                $search,
+                                                $packageType
                                             )
                                         ) ?>">
                                 <?= $totalPages ?>
@@ -1477,7 +1603,8 @@ include('../navbar.php');
                                             buildPageUrl(
                                                 $page + 1,
                                                 $perPage,
-                                                $search
+                                                $search,
+                                                $packageType
                                             )
                                         ) ?>"
                                 aria-label="Next page">
@@ -1502,6 +1629,11 @@ include('../navbar.php');
                             type="hidden"
                             name="search"
                             value="<?= escapeHtml($search) ?>">
+
+                        <input
+                            type="hidden"
+                            name="filter_packages"
+                            value="<?= escapeHtml($packageType) ?>">
 
                         <select
                             name="per_page"
@@ -1974,7 +2106,7 @@ include('../navbar.php');
             }
 
             const response = await fetch(
-                `https://dataworks-7b7x.onrender.com/api/retrieve-package.php?barcode=${encodeURIComponent(barcode)}`, {
+                `http://localhost:3000/api/retrieve-package.php?barcode=${encodeURIComponent(barcode)}`, {
                     method: "GET",
                     headers: {
                         Accept: "application/json"
