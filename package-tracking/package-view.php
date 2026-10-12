@@ -105,6 +105,12 @@ $whereParts = [
     "
 ];
 
+$whereParts = [
+    "
+    delivered_status = 'delivered'
+    "
+];
+
 $params = [];
 
 $packageType = (string)($_GET['filter_packages'] ?? 'All');
