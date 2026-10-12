@@ -480,6 +480,7 @@ try {
     foreach ($normalizedPackages as $package) {
         $barcode = $package['barcode'];
         $carrier = $package['carrier'];
+        $status = $package['delivered_status'];
 
         $checkStmt->execute(['barcode' => $barcode]);
         $existingRow = $checkStmt->fetch(PDO::FETCH_ASSOC);
@@ -491,7 +492,7 @@ try {
             'delivered_by' => $deliveredBy,
             'delivered_to' => $deliveredTo,
             'comments' => $comments,
-            'delivered_status' => 'delivered',
+            'delivered_status' => $status ?? '',
             'signature_path' => $sigURL,
             'photo_path' => $photoURL,
             'latitude' => $latitude,
