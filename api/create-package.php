@@ -480,7 +480,7 @@ try {
     foreach ($normalizedPackages as $package) {
         $barcode = $package['barcode'];
         $carrier = $package['carrier'];
-        $status = $package['delivered_status'] ?? '';
+        $status = $package['delivered_status'] ?? 'delivered';
 
         $checkStmt->execute(['barcode' => $barcode]);
         $existingRow = $checkStmt->fetch(PDO::FETCH_ASSOC);
