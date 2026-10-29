@@ -1,5 +1,5 @@
 <?php
-$db_host = $_ENV['DB_HOST'] ?? NULL;
+/*$db_host = $_ENV['DB_HOST'] ?? NULL;
 $db_port = $_ENV['DB_PORT'] ?? NULL;
 $db_name = $_ENV['DB_NAME'] ?? NULL;
 $db_user = $_ENV['DB_USER'] ?? NULL;
@@ -7,6 +7,31 @@ $db_pass = $_ENV['DB_PASS'] ?? NULL;
 $db_pass = $_ENV['DB_PASS'] ?? NULL;
 $sburl = $_ENV['SB_URL'] ?? NULL;
 $sbsecret = $_ENV['SB_SECRET_KEY'] ?? NULL;
+ */
+
+$host = "127.0.0.1";
+$port = 8000;
+$db   = "dataworks_local";
+$user = "postgres";
+$pass = "adminbword";
+$name = "Mar";
+$dsn = "pgsql:host=$host;port=$port;dbname=$db";
+
+try {
+    $dbh = new PDO($dsn, $user, $pass, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+} catch (PDOException $e) {
+    die("PostgreSQL connection failed: " . $e->getMessage());
+}
+
+define('APP_URL', $_ENV['APP_URL'] ?? 'http://localhost:8001');
+
+function url(string $path = ''): string
+{
+    return APP_URL . '/' . ltrim($path, '/');
+}
 
 try {
     if (session_status() === PHP_SESSION_NONE) {
@@ -31,7 +56,12 @@ try {
         ini_set('default_charset', 'UTF-8');
         session_set_cookie_params(43200);
         session_start();
-        $_SESSION['app_pass'] = $_ENV['APP_PASS'] ?? NULL;
+        $_SESSION['id'] = 1;
+        $_SESSION['role'] = 'admin';
+        $_SESSION['email'] = 'aestrada68@csub.edu';
+        $_SESSION['deptid'] = 'D21560';
+        $_SESSION['app_pass'] = 'mlto rlii qpgf sktj';
+        //$_SESSION['app_pass'] = $_ENV['APP_PASS'] ?? NULL;
     }
     $dbh = new PDO("pgsql:host=$db_host;port=$db_port;dbname=$db_name", $db_user, $db_pass, array());
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -47,12 +77,14 @@ function check_auth($level = 'low')
         'high' => ['admin']
     ];
     if (!isset($_SESSION['role']) || $_SESSION['role'] === '') {
-        header('Location: https://dataworks-7b7x.onrender.com/auth/login.php');
+        header('Location:' . url('auth/login.php'));
+        //header('Location: https://dataworks-7b7x.onrender.com/auth/login.php');
         exit;
     }
     $user_role = $_SESSION['role'];
     if (!in_array($user_role, $levels[$level] ?? [])) {
-        header('Location: https://dataworks-7b7x.onrender.com/index.php');
+        header('Location: ' . url('index.php'));
+        //header('Location: https://dataworks-7b7x.onrender.com/index.php');
         exit;
     }
     return true;
@@ -117,19 +149,19 @@ function check_api_auth(PDO $dbh, string $requiredLevel = 'low'): array
 
     $stmt = $dbh->prepare(
         'SELECT
-            id,
-            username,
-            email,
-            f_name,
-            l_name,
-            u_role,
-            dept_id,
-            is_active
-         FROM user_table
-         WHERE api_token = ?
-           AND token_expires > CURRENT_TIMESTAMP
-           AND is_active = TRUE
-         LIMIT 1'
+        id,
+        username,
+        email,
+        f_name,
+        l_name,
+        u_role,
+        dept_id,
+        is_active
+        FROM user_table
+        WHERE api_token = ?
+        AND token_expires > CURRENT_TIMESTAMP
+        AND is_active = TRUE
+        LIMIT 1'
     );
 
     $stmt->execute([$tokenHash]);
