@@ -9,36 +9,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $bytes = random_bytes(3);
     $token = bin2hex($bytes);
-    
+
     try {
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'dasonbaird25@gmail.com';
-        $mail->Password   = $_SESSION['app_pass']; 
-        $mail->SMTPSecure = 'tls';
+        $mail->Username   = 'phpangele@gmail.com';
+        $mail->Password   = $_SESSION['app_pass_email'];
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS; //'tls';
         $mail->Port       = 587;
         $mail->isHTML(true);
         $mail->CharSet = 'UTF-8';
-        $mail->setFrom('dasonbaird25@gmail.com', 'Dataworks No Reply');
+        $mail->setFrom('phpangele@gmail.com', 'Dataworks No Reply');
         $mail->addAddress($email, 'User');
         $mail->Subject = 'Password Reset';
         $mail->Body    = '<h4>Click this link to reset your password...</h4><br>
-        <a href="https://dataworks-7b7x.onrender.com/auth/reset-password.php?token=' . $token . '&email='.$email.'">Reset Password</a>';
+        <a href="https://dataworks-7b7x.onrender.com/auth/reset-password.php?token=' . $token . '&email=' . $email . '">Reset Password</a>';
         $mail->AltBody = 'Click this link to reset your password...';
 
         $mail->send();
-       
+
         $add_token_q = "UPDATE user_table SET ver_code = :token, expiry = CURRENT_TIMESTAMP WHERE email = :email";
         $token_stmt = $dbh->prepare($add_token_q);
-        $token_stmt->execute([':token'=>$token, ':email'=>$email]);
-        
+        $token_stmt->execute([':token' => $token, ':email' => $email]);
+
         $message = "If an account with that email exists, you will receive a password reset link shortly.";
         $success = true;
-        
+    } catch (PDOException $e) {
+        $message = "Invalid Email Address: " . $email;
+        $success = false;
     } catch (Exception $e) {
-        $message = "Invalid Email Address: ". $email;
+        $message = $e->getMessage();
         $success = false;
     }
 }
@@ -47,6 +49,7 @@ include_once("../navbar.php");
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -82,9 +85,19 @@ include_once("../navbar.php");
         }
 
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(20px, -20px) rotate(120deg); }
-            66% { transform: translate(-15px, 15px) rotate(240deg); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(20px, -20px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-15px, 15px) rotate(240deg);
+            }
         }
 
         .forgot-container {
@@ -104,6 +117,7 @@ include_once("../navbar.php");
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -123,8 +137,15 @@ include_once("../navbar.php");
         }
 
         @keyframes shimmer {
-            0%, 100% { background-position: -200% 0; }
-            50% { background-position: 200% 0; }
+
+            0%,
+            100% {
+                background-position: -200% 0;
+            }
+
+            50% {
+                background-position: 200% 0;
+            }
         }
 
         .forgot-header {
@@ -202,7 +223,7 @@ include_once("../navbar.php");
             outline: none;
             border-color: #2196f3;
             background: #ffffff;
-            box-shadow: 
+            box-shadow:
                 0 0 0 4px rgba(33, 150, 243, 0.1),
                 0 4px 12px rgba(33, 150, 243, 0.15);
             transform: translateY(-1px);
@@ -220,9 +241,19 @@ include_once("../navbar.php");
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
 
         .form-input.valid {
@@ -272,7 +303,7 @@ include_once("../navbar.php");
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
 
@@ -311,8 +342,13 @@ include_once("../navbar.php");
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .back-link {
@@ -352,6 +388,7 @@ include_once("../navbar.php");
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -406,19 +443,19 @@ include_once("../navbar.php");
                 margin: 10px;
                 max-width: none;
             }
-            
+
             .forgot-body {
                 padding: 30px 20px 20px;
             }
-            
+
             .forgot-header {
                 padding: 30px 20px;
             }
-            
+
             .forgot-header h2 {
                 font-size: 24px;
             }
-            
+
             .forgot-header .icon {
                 font-size: 40px;
                 margin-bottom: 12px;
@@ -434,7 +471,10 @@ include_once("../navbar.php");
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
+
+            *,
+            *::before,
+            *::after {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
@@ -442,120 +482,121 @@ include_once("../navbar.php");
         }
     </style>
 </head>
+
 <body>
-<div class="is-forgot">
-    <div class="forgot-container">
-        <div class="forgot-header">
-            <span class="icon">🔐</span>
-            <h2>Reset Password</h2>
-            <p>Enter your email address and we'll send you a link to reset your password</p>
-        </div>
+    <div class="is-forgot">
+        <div class="forgot-container">
+            <div class="forgot-header">
+                <span class="icon">🔐</span>
+                <h2>Reset Password</h2>
+                <p>Enter your email address and we'll send you a link to reset your password</p>
+            </div>
 
-        <div class="forgot-body">
-            <?php if (!empty($message)): ?>
-                <div class="message <?php echo $success ? 'success' : 'error'; ?>">
-                    <?php echo htmlspecialchars($message); ?>
-                </div>
-            <?php endif; ?>
+            <div class="forgot-body">
+                <?php if (!empty($message)): ?>
+                    <div class="message <?php echo $success ? 'success' : 'error'; ?>">
+                        <?php echo htmlspecialchars($message); ?>
+                    </div>
+                <?php endif; ?>
 
-            <?php if (!$success): ?>
-                <div class="info-box">
-                    <strong>Security Notice:</strong> For your protection, we'll only send reset links to registered CSUB email addresses.
-                </div>
-
-                <form id="forgot-form" method="post" action="forgot-password.php" onsubmit="return handleSubmit(event)">
-                    <div class="form-group">
-                        <label class="form-label" for="email">Email Address</label>
-                        <input 
-                            class="form-input" 
-                            type="email" 
-                            name="email" 
-                            id="email" 
-                            placeholder="example@csub.edu"
-                            value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
-                            required
-                            autocomplete="email"
-                        >
-                        <div id="err_email" class="error-message"></div>
+                <?php if (!$success): ?>
+                    <div class="info-box">
+                        <strong>Security Notice:</strong> For your protection, we'll only send reset links to registered CSUB email addresses.
                     </div>
 
-                    <button id="btn" class="reset-button" type="submit">
-                        Send Reset Link
-                    </button>
-                </form>
-            <?php endif; ?>
+                    <form id="forgot-form" method="post" action="forgot-password.php" onsubmit="return handleSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="email">Email Address</label>
+                            <input
+                                class="form-input"
+                                type="email"
+                                name="email"
+                                id="email"
+                                placeholder="example@csub.edu"
+                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                                required
+                                autocomplete="email">
+                            <div id="err_email" class="error-message"></div>
+                        </div>
 
-            <div class="back-link">
-                <a href="login.php">← Back to Login</a>
+                        <button id="btn" class="reset-button" type="submit">
+                            Send Reset Link
+                        </button>
+                    </form>
+                <?php endif; ?>
+
+                <div class="back-link">
+                    <a href="login.php">← Back to Login</a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        function validateEmail() {
-            const email = document.getElementById("email").value;
-            const emailInput = document.getElementById("email");
-            const errEmail = document.getElementById("err_email");
-            
-            if (email.length === 0) {
-                emailInput.classList.remove('error', 'valid');
+        <script>
+            function validateEmail() {
+                const email = document.getElementById("email").value;
+                const emailInput = document.getElementById("email");
+                const errEmail = document.getElementById("err_email");
+
+                if (email.length === 0) {
+                    emailInput.classList.remove('error', 'valid');
+                    errEmail.textContent = "";
+                    return false;
+                }
+
+                // Basic email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    emailInput.classList.add('error');
+                    emailInput.classList.remove('valid');
+                    errEmail.textContent = "Please enter a valid email address";
+                    return false;
+                }
+
+                // CSUB email validation
+                const emailCheck = email.slice(-9);
+                if (emailCheck !== '@csub.edu') {
+                    emailInput.classList.add('error');
+                    emailInput.classList.remove('valid');
+                    errEmail.textContent = "Please use your CSUB email address";
+                    return false;
+                }
+
+                emailInput.classList.remove('error');
+                emailInput.classList.add('valid');
                 errEmail.textContent = "";
-                return false;
+                return true;
             }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                emailInput.classList.add('error');
-                emailInput.classList.remove('valid');
-                errEmail.textContent = "Please enter a valid email address";
-                return false;
-            }
-            
-            // CSUB email validation
-            const emailCheck = email.slice(-9);
-            if (emailCheck !== '@csub.edu') {
-                emailInput.classList.add('error');
-                emailInput.classList.remove('valid');
-                errEmail.textContent = "Please use your CSUB email address";
-                return false;
-            }
-            
-            emailInput.classList.remove('error');
-            emailInput.classList.add('valid');
-            errEmail.textContent = "";
-            return true;
-        }
 
-        function handleSubmit(event) {
-            const btn = document.getElementById("btn");
-            
-            if (!validateEmail()) {
-                event.preventDefault();
-                return false;
-            }
-            
-            // Add loading state
-            btn.classList.add('loading');
-            btn.textContent = 'Sending...';
-            btn.disabled = true;
-            
-            return true;
-        }
+            function handleSubmit(event) {
+                const btn = document.getElementById("btn");
 
-        // Initialize form validation
-        document.addEventListener('DOMContentLoaded', function() {
-            const emailInput = document.getElementById('email');
-            
-            if (emailInput) {
-                emailInput.addEventListener('input', validateEmail);
-                emailInput.addEventListener('blur', validateEmail);
-                
-                // Auto-focus email field
-                emailInput.focus();
+                if (!validateEmail()) {
+                    event.preventDefault();
+                    return false;
+                }
+
+                // Add loading state
+                btn.classList.add('loading');
+                btn.textContent = 'Sending...';
+                btn.disabled = true;
+
+                return true;
             }
-        });
-    </script>
-</div>
+
+            // Initialize form validation
+            document.addEventListener('DOMContentLoaded', function() {
+                const emailInput = document.getElementById('email');
+
+                if (emailInput) {
+                    emailInput.addEventListener('input', validateEmail);
+                    emailInput.addEventListener('blur', validateEmail);
+
+                    // Auto-focus email field
+                    emailInput.focus();
+                }
+            });
+        </script>
+    </div>
 </body>
+
 </html>
