@@ -197,12 +197,12 @@ check_auth("low");
 <?php
 try {
     $query = "SELECT * FROM user_table WHERE email = :email";
-    $email=$_SESSION['email'];
+    $email = $_SESSION['email'];
     $user_stmt = $dbh->prepare($query);
-    $user_stmt->execute([":email"=>$email]);
+    $user_stmt->execute([":email" => $email]);
     $result = $user_stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    echo "error: " . $e->getMessage(); 
+    echo "error: " . $e->getMessage();
 }
 $email = $result["email"];
 $f_name = $result["f_name"];
@@ -305,6 +305,9 @@ $pw = $result["pw"];
             });
 
 
+    });
+    document.getElementById("change-pw").addEventListener("click", () => {
+        window.location.href = "https://dataworks-7b7x.onrender.com/auth/forgot-password.php?";
     });
     // When the user clicks on <div>, open the popup
     function popup() {
