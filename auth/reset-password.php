@@ -27,14 +27,14 @@ try {
             // In a real application, you would verify the token and update the password in the database
             $check_time = "SELECT ver_code, email FROM user_table WHERE email = :email AND expiry >= now() - INTERVAL '1 hour'";
             $check_stmt = $dbh->prepare($check_time);
-            $check_stmt->execute([':email'=>$email]);
-            $token_result =$check_stmt->fetch(PDO::FETCH_ASSOC);
+            $check_stmt->execute([':email' => $email]);
+            $token_result = $check_stmt->fetch(PDO::FETCH_ASSOC);
             if ($token_result) {
                 if (isset($token_result['ver_code']) && $token_result['ver_code'] == $reset_token) {
                     $new_pass = password_hash($new_password, PASSWORD_DEFAULT);
                     $update_pw = "UPDATE user_table SET pw = :pw WHERE email = :email";
                     $update_stmt = $dbh->prepare($update_pw);
-                    $update_stmt->execute([':pw'=>$new_pass, ':email'=>$email]);
+                    $update_stmt->execute([':pw' => $new_pass, ':email' => $email]);
                     $message = 'Your password has been successfully reset! You can now log in with your new password.';
                     header("Location: login.php");
                     exit;
@@ -52,6 +52,7 @@ include_once("../navbar.php");
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -292,232 +293,236 @@ include_once("../navbar.php");
             .reset-container {
                 padding: 30px 20px;
             }
-            
+
             .reset-header h1 {
                 font-size: 24px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="is-reset">
-    <div class="reset-container">
-        <div class="reset-header">
-            <h1>Set New Password</h1>
-            <p>Please enter your new password below. Make sure its strong and secure.</p>
-        </div>
+        <div class="reset-container">
+            <div class="reset-header">
+                <h1>Set New Password</h1>
+                <p>Please enter your new password below. Make sure its strong and secure.</p>
+            </div>
 
-        <?php if (empty($token)): ?>
-            <div class="message error">
-                Invalid or missing reset token. Please request a new password reset link.
-            </div>
-            <div class="back-link">
-                <a href="forgot-password.php">← Request New Reset Link</a>
-            </div>
-        <?php else: ?>
-            <?php if ($message): ?>
-                <div class="message success"><?php echo htmlspecialchars($message); ?></div>
+            <?php if (empty($token)): ?>
+                <div class="message error">
+                    Invalid or missing reset token. Please request a new password reset link.
+                </div>
                 <div class="back-link">
-                    <a href="login.php">← Go to Login</a>
+                    <a href="forgot-password.php">← Request New Reset Link</a>
                 </div>
             <?php else: ?>
-                <?php if ($error): ?>
-                    <div class="message error"><?php echo htmlspecialchars($error); ?></div>
-                <?php endif; ?>
+                <?php if ($message): ?>
+                    <div class="message success"><?php echo htmlspecialchars($message); ?></div>
+                    <div class="back-link">
+                        <a href="login.php">← Go to Login</a>
+                    </div>
+                <?php else: ?>
+                    <?php if ($error): ?>
+                        <div class="message error"><?php echo htmlspecialchars($error); ?></div>
+                    <?php endif; ?>
 
+                    <!--
                 <div class="token-info">
                     ✓ Valid reset token confirmed
                 </div>
+                -->
 
-                <form id="resetForm" method="POST" action="">
-                    <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
-                    
-                    <div class="form-group">
-                        <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" required>
-                        <div class="password-strength">
-                            <div class="strength-bar">
-                                <div class="strength-fill"></div>
+                    <form id="resetForm" method="POST" action="">
+                        <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" required>
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <div class="strength-text">Password strength: <span id="strengthText">Enter password</span></div>
                             </div>
-                            <div class="strength-text">Password strength: <span id="strengthText">Enter password</span></div>
+                            <div class="requirements">
+                                <strong>Password Requirements:</strong>
+                                <ul id="requirements">
+                                    <li id="length">At least 8 characters</li>
+                                    <li id="uppercase">One uppercase letter (A-Z)</li>
+                                    <li id="lowercase">One lowercase letter (a-z)</li>
+                                    <li id="number">One number (0-9)</li>
+                                    <li id="special">One special character (!@#$%^&*)</li>
+                                </ul>
+                            </div>
+                            <div class="validation-message" id="passwordMessage"></div>
                         </div>
-                        <div class="requirements">
-                            <strong>Password Requirements:</strong>
-                            <ul id="requirements">
-                                <li id="length">At least 8 characters</li>
-                                <li id="uppercase">One uppercase letter (A-Z)</li>
-                                <li id="lowercase">One lowercase letter (a-z)</li>
-                                <li id="number">One number (0-9)</li>
-                                <li id="special">One special character (!@#$%^&*)</li>
-                            </ul>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" required>
+                            <div class="validation-message" id="confirmMessage"></div>
                         </div>
-                        <div class="validation-message" id="passwordMessage"></div>
+
+                        <button type="submit" class="reset-btn" id="submitBtn" disabled>
+                            Update Password
+                        </button>
+                    </form>
+
+                    <div class="back-link">
+                        <a href="login.php">← Back to Login</a>
                     </div>
-
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" required>
-                        <div class="validation-message" id="confirmMessage"></div>
-                    </div>
-
-                    <button type="submit" class="reset-btn" id="submitBtn" disabled>
-                        Update Password
-                    </button>
-                </form>
-
-                <div class="back-link">
-                    <a href="login.php">← Back to Login</a>
-                </div>
+                <?php endif; ?>
             <?php endif; ?>
-        <?php endif; ?>
-    </div>
+        </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const newPasswordInput = document.getElementById('new_password');
-            const confirmPasswordInput = document.getElementById('confirm_password');
-            const submitBtn = document.getElementById('submitBtn');
-            const strengthBar = document.querySelector('.strength-bar');
-            const strengthFill = document.querySelector('.strength-fill');
-            const strengthText = document.getElementById('strengthText');
-            const passwordMessage = document.getElementById('passwordMessage');
-            const confirmMessage = document.getElementById('confirmMessage');
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const newPasswordInput = document.getElementById('new_password');
+                const confirmPasswordInput = document.getElementById('confirm_password');
+                const submitBtn = document.getElementById('submitBtn');
+                const strengthBar = document.querySelector('.strength-bar');
+                const strengthFill = document.querySelector('.strength-fill');
+                const strengthText = document.getElementById('strengthText');
+                const passwordMessage = document.getElementById('passwordMessage');
+                const confirmMessage = document.getElementById('confirmMessage');
 
-            // Password requirements elements
-            const requirements = {
-                length: document.getElementById('length'),
-                uppercase: document.getElementById('uppercase'),
-                lowercase: document.getElementById('lowercase'),
-                number: document.getElementById('number'),
-                special: document.getElementById('special')
-            };
-
-            function checkPasswordStrength(password) {
-                const checks = {
-                    length: password.length >= 8,
-                    uppercase: /[A-Z]/.test(password),
-                    lowercase: /[a-z]/.test(password),
-                    number: /\d/.test(password),
-                    special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                // Password requirements elements
+                const requirements = {
+                    length: document.getElementById('length'),
+                    uppercase: document.getElementById('uppercase'),
+                    lowercase: document.getElementById('lowercase'),
+                    number: document.getElementById('number'),
+                    special: document.getElementById('special')
                 };
 
-                // Update requirement list
-                Object.keys(checks).forEach(key => {
-                    if (checks[key]) {
-                        requirements[key].classList.add('met');
+                function checkPasswordStrength(password) {
+                    const checks = {
+                        length: password.length >= 8,
+                        uppercase: /[A-Z]/.test(password),
+                        lowercase: /[a-z]/.test(password),
+                        number: /\d/.test(password),
+                        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                    };
+
+                    // Update requirement list
+                    Object.keys(checks).forEach(key => {
+                        if (checks[key]) {
+                            requirements[key].classList.add('met');
+                        } else {
+                            requirements[key].classList.remove('met');
+                        }
+                    });
+
+                    const metCount = Object.values(checks).filter(Boolean).length;
+
+                    // Update strength bar
+                    strengthBar.className = 'strength-bar';
+                    if (password.length === 0) {
+                        strengthText.textContent = 'Enter password';
+                        return 'none';
+                    } else if (metCount < 3) {
+                        strengthBar.classList.add('strength-weak');
+                        strengthText.textContent = 'Weak';
+                        return 'weak';
+                    } else if (metCount < 5) {
+                        strengthBar.classList.add('strength-medium');
+                        strengthText.textContent = 'Medium';
+                        return 'medium';
                     } else {
-                        requirements[key].classList.remove('met');
-                    }
-                });
-
-                const metCount = Object.values(checks).filter(Boolean).length;
-                
-                // Update strength bar
-                strengthBar.className = 'strength-bar';
-                if (password.length === 0) {
-                    strengthText.textContent = 'Enter password';
-                    return 'none';
-                } else if (metCount < 3) {
-                    strengthBar.classList.add('strength-weak');
-                    strengthText.textContent = 'Weak';
-                    return 'weak';
-                } else if (metCount < 5) {
-                    strengthBar.classList.add('strength-medium');
-                    strengthText.textContent = 'Medium';
-                    return 'medium';
-                } else {
-                    strengthBar.classList.add('strength-strong');
-                    strengthText.textContent = 'Strong';
-                    return 'strong';
-                }
-            }
-
-            function validateForm() {
-                const newPassword = newPasswordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-                let isValid = true;
-
-                // Validate new password
-                if (newPassword.length === 0) {
-                    newPasswordInput.className = '';
-                    passwordMessage.textContent = '';
-                } else {
-                    const strength = checkPasswordStrength(newPassword);
-                    
-                    if (newPassword.length < 8) {
-                        newPasswordInput.className = 'invalid';
-                        passwordMessage.textContent = 'Password must be at least 8 characters long';
-                        passwordMessage.className = 'validation-message error';
-                        isValid = false;
-                    } else if (strength === 'weak') {
-                        newPasswordInput.className = 'invalid';
-                        passwordMessage.textContent = 'Password is too weak - please meet more requirements';
-                        passwordMessage.className = 'validation-message error';
-                        isValid = false;
-                    } else {
-                        newPasswordInput.className = 'valid';
-                        passwordMessage.textContent = 'Password strength is good';
-                        passwordMessage.className = 'validation-message success';
+                        strengthBar.classList.add('strength-strong');
+                        strengthText.textContent = 'Strong';
+                        return 'strong';
                     }
                 }
 
-                // Validate confirm password
-                if (confirmPassword.length === 0) {
-                    confirmPasswordInput.className = '';
-                    confirmMessage.textContent = '';
-                } else if (newPassword !== confirmPassword) {
-                    confirmPasswordInput.className = 'invalid';
-                    confirmMessage.textContent = 'Passwords do not match';
-                    confirmMessage.className = 'validation-message error';
-                    isValid = false;
-                } else if (newPassword.length > 0) {
-                    confirmPasswordInput.className = 'valid';
-                    confirmMessage.textContent = 'Passwords match';
-                    confirmMessage.className = 'validation-message success';
-                }
-
-                // Enable/disable submit button
-                const hasValidPassword = newPassword.length >= 8 && checkPasswordStrength(newPassword) !== 'weak';
-                const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0;
-                
-                submitBtn.disabled = !(hasValidPassword && passwordsMatch);
-            }
-
-            // Event listeners
-            if (newPasswordInput) {
-                newPasswordInput.addEventListener('input', validateForm);
-                confirmPasswordInput.addEventListener('input', validateForm);
-
-                // Form submission validation
-                document.getElementById('resetForm').addEventListener('submit', function(e) {
+                function validateForm() {
                     const newPassword = newPasswordInput.value;
                     const confirmPassword = confirmPasswordInput.value;
+                    let isValid = true;
 
-                    if (newPassword !== confirmPassword) {
-                        e.preventDefault();
-                        alert('Passwords do not match!');
-                        return false;
+                    // Validate new password
+                    if (newPassword.length === 0) {
+                        newPasswordInput.className = '';
+                        passwordMessage.textContent = '';
+                    } else {
+                        const strength = checkPasswordStrength(newPassword);
+
+                        if (newPassword.length < 8) {
+                            newPasswordInput.className = 'invalid';
+                            passwordMessage.textContent = 'Password must be at least 8 characters long';
+                            passwordMessage.className = 'validation-message error';
+                            isValid = false;
+                        } else if (strength === 'weak') {
+                            newPasswordInput.className = 'invalid';
+                            passwordMessage.textContent = 'Password is too weak - please meet more requirements';
+                            passwordMessage.className = 'validation-message error';
+                            isValid = false;
+                        } else {
+                            newPasswordInput.className = 'valid';
+                            passwordMessage.textContent = 'Password strength is good';
+                            passwordMessage.className = 'validation-message success';
+                        }
                     }
 
-                    if (newPassword.length < 8) {
-                        e.preventDefault();
-                        alert('Password must be at least 8 characters long!');
-                        return false;
+                    // Validate confirm password
+                    if (confirmPassword.length === 0) {
+                        confirmPasswordInput.className = '';
+                        confirmMessage.textContent = '';
+                    } else if (newPassword !== confirmPassword) {
+                        confirmPasswordInput.className = 'invalid';
+                        confirmMessage.textContent = 'Passwords do not match';
+                        confirmMessage.className = 'validation-message error';
+                        isValid = false;
+                    } else if (newPassword.length > 0) {
+                        confirmPasswordInput.className = 'valid';
+                        confirmMessage.textContent = 'Passwords match';
+                        confirmMessage.className = 'validation-message success';
                     }
 
-                    const strength = checkPasswordStrength(newPassword);
-                    if (strength === 'weak') {
-                        e.preventDefault();
-                        alert('Password is too weak. Please meet more security requirements!');
-                        return false;
-                    }
-                });
+                    // Enable/disable submit button
+                    const hasValidPassword = newPassword.length >= 8 && checkPasswordStrength(newPassword) !== 'weak';
+                    const passwordsMatch = newPassword === confirmPassword && confirmPassword.length > 0;
 
-                // Initialize validation
-                validateForm();
-            }
-        });
-    </script>
-</div>
+                    submitBtn.disabled = !(hasValidPassword && passwordsMatch);
+                }
+
+                // Event listeners
+                if (newPasswordInput) {
+                    newPasswordInput.addEventListener('input', validateForm);
+                    confirmPasswordInput.addEventListener('input', validateForm);
+
+                    // Form submission validation
+                    document.getElementById('resetForm').addEventListener('submit', function(e) {
+                        const newPassword = newPasswordInput.value;
+                        const confirmPassword = confirmPasswordInput.value;
+
+                        if (newPassword !== confirmPassword) {
+                            e.preventDefault();
+                            alert('Passwords do not match!');
+                            return false;
+                        }
+
+                        if (newPassword.length < 8) {
+                            e.preventDefault();
+                            alert('Password must be at least 8 characters long!');
+                            return false;
+                        }
+
+                        const strength = checkPasswordStrength(newPassword);
+                        if (strength === 'weak') {
+                            e.preventDefault();
+                            alert('Password is too weak. Please meet more security requirements!');
+                            return false;
+                        }
+                    });
+
+                    // Initialize validation
+                    validateForm();
+                }
+            });
+        </script>
+    </div>
 </body>
+
 </html>

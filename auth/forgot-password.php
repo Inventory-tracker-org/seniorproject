@@ -39,10 +39,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (PDOException $e) {
         $message = "Invalid Email Address: " . $email;
         $success = false;
-    } catch (Exception $e) {
+    }
+    /* ONLY USE THIS EXCEPTION IN LOCAL FOR TROUBLESHOOTING, DO NOT LEAVE IN PROD
+    catch (Exception $e) {
         $message = $e->getMessage();
         $success = false;
     }
+        */
 }
 include_once("../navbar.php");
 ?>
