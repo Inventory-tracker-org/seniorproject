@@ -306,7 +306,7 @@ include_once("../navbar.php");
         <div class="reset-container">
             <div class="reset-header">
                 <h1>Set New Password</h1>
-                <p>Please enter your new password below. Make sure its strong and secure.</p>
+                <!--<p>Please enter your new password below. Make sure its strong and secure.</p>-->
             </div>
 
             <?php if (empty($token)): ?>
@@ -327,11 +327,9 @@ include_once("../navbar.php");
                         <div class="message error"><?php echo htmlspecialchars($error); ?></div>
                     <?php endif; ?>
 
-                    <!--
-                <div class="token-info">
-                    ✓ Valid reset token confirmed
-                </div>
-                -->
+                    <div class="token-info">
+                        Please enter your new password below. Make sure its strong and secure.
+                    </div>
 
                     <form id="resetForm" method="POST" action="">
                         <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
