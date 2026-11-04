@@ -2,7 +2,18 @@
 include_once "../config.php";
 check_auth();
 
-$query = "SELECT barcode, delivered_status, received_date, description, delivered_date, delivered_time FROM packages WHERE delivered_status IN ('received', 'delivered') AND package_type = 'freight' ORDER BY received_date DESC";
+$query = "
+    SELECT barcode, delivered_status, received_date, description, delivered_date, delivered_time
+    FROM packages
+    WHERE delivered_status IN ('received', 'delivered')
+      AND package_type = 'freight'
+    ORDER BY
+        CASE
+            WHEN delivered_status = 'delivered' THEN delivered_date
+            ELSE received_date
+        END DESC,
+        delivered_time DESC
+";
 $stmt = $dbh->prepare($query);
 $stmt->execute();
 $freightItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -43,7 +54,10 @@ if ($totalItems > 0) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freight Dashboard</title>
+    <!-- Favicon: replace this href with your actual logo image path. -->
+    <link rel="icon" href="../images/logo.png">
     <style>
         * {
             box-sizing: border-box;
@@ -180,6 +194,7 @@ if ($totalItems > 0) {
 
         .items-box {
             width: 100%;
+            min-width: 0;
             border: solid;
             border-color: black;
             min-height: 180px;
@@ -197,7 +212,17 @@ if ($totalItems > 0) {
         .items-list {
             padding: 0;
             width: 100%;
-            overflow-x: auto;
+        }
+
+        .items-list--scrollable {
+            max-height: 350px;
+            /* Header plus approximately five standard-height rows. */
+            overflow: auto;
+        }
+
+        .items-list--scrollable:focus-visible {
+            outline: 2px solid #003594;
+            outline-offset: 3px;
         }
 
         .item {
@@ -233,36 +258,45 @@ if ($totalItems > 0) {
 
         .delivered-status {
             display: inline-block;
-            padding: 4px 9px;
+            padding: 5px 9px;
             border-radius: 4px;
-            background: #398d4c;
+            background: #3f8d47;
             color: #fff;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
+            line-height: 1;
         }
 
         .received-status {
             display: inline-block;
-            padding: 4px 9px;
+            padding: 5px 9px;
             border-radius: 4px;
             background: #cc8316;
             color: #fff;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
+            line-height: 1;
         }
 
         .empty-message {
-            margin: 0;
-            padding: 24px 0;
-            color: var(--muted);
-            font-size: 14px;
+            padding: 55px 20px !important;
+            color: #707070 !important;
+            text-align: center;
         }
 
         .package-table {
             width: 100%;
             table-layout: fixed;
             border-collapse: collapse;
+            font-size: 14px;
+        }
 
+        .received-table {
+            min-width: 680px;
+        }
+
+        .delivered-table {
+            min-width: 0;
         }
 
         .package-table thead {
@@ -270,14 +304,96 @@ if ($totalItems > 0) {
         }
 
         .package-table th {
-            padding: 14px 16px;
-            color: black;
+            padding: 12px 10px;
+            border-bottom: 1px solid #dddddd;
+            background: #2196f3;
+            color: #111111;
+            font-size: 13px;
+            font-weight: 700;
             text-align: left;
             white-space: nowrap;
         }
 
+        .items-list--scrollable .package-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .package-table td {
+            min-height: 76px;
+            padding: 18px 10px;
+            border-bottom: 1px solid #e6e6e6;
+            color: #444444;
+            vertical-align: middle;
+            overflow-wrap: anywhere;
+        }
+
+        .package-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .package-table tbody tr:hover {
+            background: #e8f6fc;
+        }
+
         .package-table tbody tr:last-child td {
             border-bottom: none;
+        }
+
+        .date-column {
+            width: 145px;
+        }
+
+        .time-column {
+            width: 135px;
+        }
+
+        .barcode-column {
+            width: 215px;
+        }
+
+        .status-column {
+            width: 185px;
+        }
+
+        .barcode-value {
+            color: #333333;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .table-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .table-link-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 10px;
+            border: 1px solid #ffffff;
+            border-radius: 4px;
+            background: #ffffff;
+            color: #0b4b7a;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.2;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .table-link-button:hover {
+            background: #e3f2fd;
+            border-color: #e3f2fd;
+        }
+
+        .table-link-button:focus-visible {
+            outline: 2px solid #172536;
+            outline-offset: 3px;
         }
 
         @media (max-width: 750px) {
@@ -292,6 +408,35 @@ if ($totalItems > 0) {
 
             .summary-area {
                 grid-template-columns: 1fr;
+            }
+
+            /* Keep the delivered table within the page without scrolling. */
+            .delivered-table th {
+                width: 20%;
+                padding: 12px 6px;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            .delivered-table td {
+                padding: 18px 6px;
+            }
+
+            .delivered-table .table-header-actions {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .delivered-table .table-link-button {
+                max-width: 100%;
+                padding: 6px;
+                font-size: 11px;
+                white-space: normal;
+            }
+
+            .delivered-table .delivered-status {
+                padding: 5px 6px;
+                font-size: 11px;
             }
         }
     </style>
@@ -346,27 +491,28 @@ if ($totalItems > 0) {
 
         <div class="dashboard-boxes">
             <section id="received-section" class="items-box">
-                <div class="items-list">
+                <div class="items-list items-list--scrollable" tabindex="0" role="region" aria-label="Received freight table">
 
-                    <?php if (empty($itemsReceived)): ?>
+                    <table class="package-table received-table" aria-label="Received freight">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="date-column">Date Received</th>
+                                <th scope="col" class="barcode-column">Tracking Number</th>
+                                <th scope="col">Description</th>
+                                <th scope="col" class="status-column">
+                                    <div class="table-header-actions">
+                                        <span>Status</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
 
-                        <p class="empty-message">
-                            No received items found.
-                        </p>
-
-                    <?php else: ?>
-
-                        <table class="package-table">
-                            <thead>
+                        <tbody>
+                            <?php if (empty($itemsReceived)): ?>
                                 <tr>
-                                    <th>Date Received</th>
-                                    <th>Tracking Number</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
+                                    <td colspan="4" class="empty-message">No received items found.</td>
                                 </tr>
-                            </thead>
-
-                            <tbody>
+                            <?php else: ?>
                                 <?php foreach ($itemsReceived as $item): ?>
 
                                     <tr>
@@ -375,7 +521,7 @@ if ($totalItems > 0) {
                                         </td>
 
                                         <td>
-                                            <?= htmlspecialchars($item['barcode']) ?>
+                                            <span class="barcode-value"><?= htmlspecialchars($item['barcode']) ?></span>
                                         </td>
                                         <td>
                                             <?= htmlspecialchars($item['description']) ?>
@@ -388,38 +534,40 @@ if ($totalItems > 0) {
                                     </tr>
 
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-
-                    <?php endif; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
 
                 </div>
             </section>
 
-            <section class="items-box">
+            <section id="delivered-section" class="items-box">
                 <div class="items-list">
 
-                    <?php if (empty($itemsDelivered)): ?>
+                    <table class="package-table delivered-table" aria-label="Delivered freight">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="date-column">Date Delivered</th>
+                                <th scope="col" class="time-column">Time Delivered</th>
+                                <th scope="col" class="barcode-column">Tracking Number</th>
+                                <th scope="col">Description</th>
+                                <th scope="col" class="status-column">
+                                    <div class="table-header-actions">
+                                        <span>Status</span>
+                                        <!-- DELIVERED LINK: replace href="#" with your URL. -->
+                                        <a href="http://localhost:3000/package-tracking/package-view.php?search=&per_page=10&page=1&filter_packages=freight" class="table-link-button" aria-label="View all delivered freight">View all</a>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
 
-                        <p class="empty-message">
-                            No delivered items found.
-                        </p>
-
-                    <?php else: ?>
-
-                        <table class="package-table">
-                            <thead>
+                        <tbody>
+                            <?php if (empty($itemsDelivered)): ?>
                                 <tr>
-                                    <th>Date Delivered</th>
-                                    <th>Time Delivered</th>
-                                    <th>Tracking Number</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
+                                    <td colspan="5" class="empty-message">No delivered items found.</td>
                                 </tr>
-                            </thead>
-
-                            <tbody>
-                                <?php foreach ($itemsDelivered as $item): ?>
+                            <?php else: ?>
+                                <?php foreach (array_slice($itemsDelivered, 0, 5) as $item): ?>
 
                                     <tr>
                                         <td>
@@ -439,7 +587,7 @@ if ($totalItems > 0) {
                                         </td>
 
                                         <td>
-                                            <?= htmlspecialchars($item['barcode']) ?>
+                                            <span class="barcode-value"><?= htmlspecialchars($item['barcode']) ?></span>
                                         </td>
 
                                         <td>
@@ -454,15 +602,6 @@ if ($totalItems > 0) {
                                     </tr>
 
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-
-                    <?php endif; ?>
-
-                </div>
-            </section>
-        </div>
-    </main>i
-</body>
-
-</html>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
