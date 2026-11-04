@@ -555,7 +555,7 @@ if ($totalItems > 0) {
                                     <div class="table-header-actions">
                                         <span>Status</span>
                                         <!-- DELIVERED LINK: replace href="#" with your URL. -->
-                                        <a href="http://localhost:3000/package-tracking/package-view.php?search=&per_page=10&page=1&filter_packages=freight" class="table-link-button" aria-label="View all delivered freight">View all</a>
+                                        <a href="https://dataworks-7b7x.onrender.com/package-tracking/package-view.php?search=&per_page=10&page=1&filter_packages=freight" class="table-link-button" aria-label="View all delivered freight">View all</a>
                                     </div>
                                 </th>
                             </tr>
