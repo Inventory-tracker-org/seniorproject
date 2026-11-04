@@ -159,7 +159,7 @@ require_once __DIR__ . '/config.php';
                     <span class="dropdown-content">
                       <a href="<?= url('/package-tracking/package-view.php') ?>">Tracking Reports</a>
                       <a href="<?= url('/package-tracking/package-view.php') ?>">Package Tracking</a>
-                      <a href="<?= url('/package-tracking/package-view.php') ?>">Freight Tracking</a>
+                      <a href="<?= url('/package-tracking/freight-view.php') ?>">Freight Tracking</a>
                     </span>
                 </li>
                 <li>
