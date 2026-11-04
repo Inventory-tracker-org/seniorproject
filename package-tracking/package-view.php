@@ -107,7 +107,7 @@ $whereParts = [
 
 $whereParts = [
     "
-    delivered_status = 'delivered'
+    delivered_status IN ('delivered', 'received', 'pending')
     "
 ];
 
@@ -595,8 +595,12 @@ include('../navbar.php');
             background: #3f8d47;
         }
 
+        .status-received {
+            background: #cc8316;
+        }
+
         .status-pending {
-            background: #b1781d;
+            background: #ffee00;
         }
 
         .empty-table {
