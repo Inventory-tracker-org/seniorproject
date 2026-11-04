@@ -229,7 +229,7 @@ try {
                 }
             }
             $_SESSION['info'] = [$highest_row, NULL, $name, $_POST['audit-type'], $name, $audit_id];
-            header("Location: http://localhost:3000/audit/auditing.php");
+            header("Location: https://dataworks-7b7x.onrender.com/audit/auditing.php");
             exit;
         }
 
