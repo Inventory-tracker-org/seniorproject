@@ -2116,7 +2116,7 @@ include('../navbar.php');
             }
 
             const response = await fetch(
-                `http://localhost:3000/api/retrieve-package.php?barcode=${encodeURIComponent(barcode)}`, {
+                `https://dataworks-7b7x.onrender.com/api/retrieve-package.php?barcode=${encodeURIComponent(barcode)}`, {
                     method: "GET",
                     headers: {
                         Accept: "application/json"
