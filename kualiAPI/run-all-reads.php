@@ -1322,25 +1322,35 @@ function lsd()
 
     try {
         foreach ($edges as $index => $edge) {
+            $tags = [];
             if (isset($edge['node']['data']['y7nFCmsLEg'])) {
-                $tag = $edge['node']['data']['y7nFCmsLEg'];
+                $tags[] = $edge['node']['data']['y7nFCmsLEg'];
+            } else if (isset($edge['node']['data']['_w65lZbzMw']['data'])) {
+                foreach ($edge['node']['data']['_w65lZbzMw']['data'] as $asset) {
+                    $assetData = $asset['data'] ?? [];
+                    if (isset($assetData['mrfiR43LbN'])) {
+                        $tags[] = $assetData['mrfiR43LbN'];
+                    }
+                }
             } else {
-                $tag = $edge['node']['data']['ufHf4QAJsc'];
+                $tags[] = $edge['node']['data']['ufHf4QAJsc'];
             }
 
-            echo "<br>Tag " . $tag . "<br>";
-            $select_q = "SELECT 1 FROM asset_info WHERE asset_tag = :tag AND asset_status = 'In Service'";
-            $select_stmt = $dbh->prepare($select_q);
-            $select_stmt->execute([":tag" => $tag]);
-            if ($select_stmt->rowCount() === 1) {
-                $update_q = "UPDATE asset_info SET asset_status = 'Disposed' WHERE asset_tag = :tag";
-                $update_stmt = $dbh->prepare($update_q);
-                $update_stmt->execute([":tag" => $tag]);
+            foreach ($tags as $tag) {
+                echo "<br>Tag " . $tag . "<br>";
+                $select_q = "SELECT 1 FROM asset_info WHERE asset_tag = :tag AND asset_status = 'In Service'";
+                $select_stmt = $dbh->prepare($select_q);
+                $select_stmt->execute([":tag" => $tag]);
+                if ($select_stmt->rowCount() === 1) {
+                    $update_q = "UPDATE asset_info SET asset_status = 'Disposed' WHERE asset_tag = :tag";
+                    $update_stmt = $dbh->prepare($update_q);
+                    $update_stmt->execute([":tag" => $tag]);
+                }
+                $raw_ms++;
+                $update_kuali = "UPDATE kuali_table SET equip_lost_stol_time = :time";
+                $update_stmt = $dbh->prepare($update_kuali);
+                $update_stmt->execute([":time" => $raw_ms]);
             }
-            $raw_ms++;
-            $update_kuali = "UPDATE kuali_table SET equip_lost_stol_time = :time";
-            $update_stmt = $dbh->prepare($update_kuali);
-            $update_stmt->execute([":time" => $raw_ms]);
         }
     } catch (PDOException $e) {
         echo "Error with database " . $e->getMessage();
